@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Invoicing Application for Hearing Center Canada">
+<meta name="author" content="Randy Volkart">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<style>
+    hr {
+        margin-top:0px;
+        margin-bottom:0px;
+        border: 0;
+        clear:both;
+        display:block;
+        width: 100%;               
+        background-color:whitesmoke;
+        height: 1px;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}    
+</style>
+
+<title>Hearing Center - Create Invoice</title>
+
+</head>
+
+<body>
+    
+    <div class="container" style="background-color:lavender;">
+        <br>
+        <hr>
+        <h2 style="width: 100%;text-align:center;">Invoice Form</h2>
+        <hr>
+        <form action="process.php" method="POST">
+            <input type="hidden" name="_process" value="new"/>
+            <?php include "php/createinvoice.php"; ?>
+            
+            <!-- Customer Information -->
+            <div class="form-row" >
+                <div class="form-group col-md-12">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="_name" placeholder="Enter Customer Name" />
+                </div>  
+            </div>
+
+            <div class="form-row" >
+                <div class="form-group col-md-12">        
+                    <label class="control-label" for="address1">Address:</label>
+                    <input type="text" class="form-control" id="address1"name="_address1" placeholder="Enter Address Line 1"/>                        
+                </div>
+            </div>
+
+            <div class="form-row" >
+                <div class="form-group col-md-12">
+                    <input type="text" class="form-control" id="address2" name="_address2" placeholder="Enter Address Line 2"/>
+                </div>
+            </div>  
+
+            <div class="form-row" >
+                <div class="form-group col-md-6">
+                    <label class="control-label" for="city">City:</label>
+                    <input type="text" class="form-control" id="city" name="_city" placeholder="Enter City"/>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="control-label" for="province">Province/State:</label>
+                    <select class="form-control" id="province" name="_provincestate" required>
+                        <?php populateProvinceStateSelect($provinceStateIDs); ?>
+                    </select>                    
+                </div>                
+                <div class="form-group col-md-2">
+                    <label class="control-label" for="postal">Postal/Zip:</label>
+                    <input type="text" class="form-control" id="postal" name="_postalzip" placeholder="Enter Postal Code"/>
+                </div>         
+                <div class="form-group col-md-2">
+                    <label class="control-label for="country">Country:</label>
+                    <select class="form-control" id="country" name="_country" required>
+                        <?php populateCountrySelect($countryIDs); ?>
+                    </select>   
+                </div>                            
+            </div>  
+
+            <div class="form-row" >
+                <div class="form-group col-md-6">
+                    <label class="control-label" for="phone">Phone:</label>
+                    <input type="text" class="form-control" id="phone" name="_Phone" placeholder="Enter Phone Number"/>                    
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label" for="email">Email:</label>
+                    <input type="email" class="form-control" id="email" name="_email" placeholder="Enter Email"/>
+                </div>                
+            </div>
+            
+            <!-- Invoice Information -->
+            <div class="form-row" >
+                <div class="form-group col-md-6">
+                    <label class="control-label" for="invoicenumber">Invoice Number:</label>
+                    <input type="text"  class="form-control" id="invoicenumber" name="_invoicenumber" placeholder="Enter Invoice Number"/>                    
+                </div>
+                <div class="form-group col-md-3">
+                    <label class="control-label" for="tax1">Tax 1 Pct:</label>
+                    <select class="form-control" id="tax1" name="_tax1" required>
+                        <?php populateTaxSelect($tax1IDs, $defaultTax01); ?>
+                    </select>                                        
+                </div>   
+                <div class="form-group col-md-3">
+                    <label class="control-label" for="tax2">Tax 2 Pct:</label>
+                    <select class="form-control" id="tax2" name="_tax2" required>
+                        <?php populateTaxSelect($tax2IDs, $defaultTax02); ?>
+                    </select>                    
+                </div>         
+            </div>
+
+            <div class="form-row" >
+                <div class="form-group col-md-6">
+                    <label class="control-label" for="invoicedate">Invoice Date :</label>
+                    <?php createInput("date", "form-control", "invoicedate", "_invoicedate", $defaultDate); ?>                    
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label " for="invoiceduedate">Invocie Due Date:</label>
+                    <?php createInput("date", "form-control", "invoiceduedate", "_invoiceduedate", $defaultDueDate); ?>                       
+                 </div>
+            </div>
+
+            <div class="form-row" >
+                <div class="form-group col-md-12">
+                    <label class="control-label" for="note">Note:</label>
+                    <textarea  class="form-control" rows="3" id='note' name="_note" placeholder="Enter Notes"></textarea>
+                </div>
+            </div>
+            
+            <!-- Line Items -->
+            <hr>
+            <h4 style='width: 100%;text-align:center;'>Line Items</h4>
+            <hr>         
+
+            <div class="form-row">
+                <div class="form-group col-md-1">
+                    <label class="control-label" ></label>
+                </div>                           
+                <div class="form-group col-md-4">
+                    <label class="control-label" >Item:</label>
+                </div>
+                <div class="form-group col-md-1">
+                    <label class="control-label" >Quantity:</label>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="control-label" >Price:</label>
+                </div>
+                <div class="col-md-1">
+                    <label class="form-check-label" >Tax 1:</label>
+                </div>
+                <div class="form-group col-md-1">
+                    <label class="form-check-label" >Tax 2:</label>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="control-label" >Ext. Price:</label>
+                </div>
+            </div>
+
+            <span id="itemRow_0">
+                <div class="form-row" >
+                    <div class="form-group col-md-1">
+                        <!--<input type="button" class="form-control" id="item_delete_0" onclick="deleteItemLine(this)" value="-"/>-->
+                    </div>                           
+                    <div class="form-group col-md-4">
+                        <!-- API/JSON request to load Price and Tax info incomplete-->
+                        <select class="form-control" id="item_0" name="_item[]" required onchange="UpdateLine(this.value)">
+                            <option selected></option>
+                            <?php populateInventoryItemSelect($inventoryIDs); ?>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <input type="number" class="form-control" id="quantity_0" name="_quantitiy[]" min="0" max="99999999" value=1
+                            onblur="updateItemPrices(0)"/>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" class="form-control" id="price_0" name="_price[]" value="0.00" step="0.01"
+                            onblur="updateItemPrices(0)"/>    
+                    </div>
+                    <div class="form-group col-md-1">
+                        <input class="form-check-input" type="checkbox" id="tax1Check_0" name="_tax1Check[]" checked
+                            onchange="updateItemPrices(0)" />                    
+                        <input id='tax1CheckHidden_0' type='hidden' value='off' name='_tax1Check[]'>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <input class="form-check-input" type="checkbox" id="tax2Check_0" name="_tax2Check[]" checked
+                            onchange="updateItemPrices(0)" />
+                        <input id='tax2CheckHidden_0' type='hidden' value='off' name='_tax2Check[]'>                            
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" class="form-control" id="extPrice_0" name="_extPrice[]" readonly />
+                    </div>
+                </div>
+            </span>            
+
+            <div class="form-row" id ="itemAdd">
+                <div class="form-group col-md-10"></div>
+                <div class="form-group col-md-2">
+                    <input type="button" class="form-control" id="itemAdd" value="Add Item" onclick="createItemRow()"/>
+                </div>   
+            </div>               
+
+            <!-- Payment Line Items-->
+            <hr>
+            <h4 style='width: 100%;text-align:center;'>Payments</h4>
+            <hr>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label class="control-label" >Payment Type:</label>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="control-label" >Payment Amount:</label>
+                </div>    
+            </div>
+
+            <div class="payment-row" >
+                <div class="form-row" >
+                    <div class="form-group col-md-6">
+                        <select class="form-control" id="payment" name="_payment" required>
+                            <?php populatePaymentsSelect($paymentIDs); ?>
+                        </select>                    
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="number" class="form-control" id="paymentAmount" name="_paymentAmount" step="0.01"/>                    
+                    </div>              
+                </div>  
+            </div>
+
+            <!-- Invoice Totals-->
+            <hr>
+            <h4 style="width: 100%;text-align:center;">Invoice Totals</h4>
+            <hr>
+            <div class="form-row" >
+                <div class="form-group col-md-1">
+                    <label class="control-label" >Subtotal:</label>    
+                </div>
+                <div class="form-group col-md-2">
+                    <input type="number" class="form-control" id="subTotal" name="_subTotal"  value="0.00" step="0.01" readonly />      
+                </div>
+                <div class="form-group col-md-1">
+                    <label class="control-label col-sm-1"  ><?php echo "$defaultTax01"; ?>:</label>         
+                </div>
+                <div class="form-group col-md-2">       
+                    <input type="number" class="form-control" id="tax1Total" name="_tax1Total" value="0.00" step="0.01" readonly/>     
+                </div>
+                <div class="form-group col-md-1">
+                    <label class="control-label col-sm-1" ><?php echo "$defaultTax02"; ?>:</label>         
+                </div>
+                <div class="form-group col-md-2">
+                    <input type="number" class="form-control" id="tax2Total" name="_tax2Total" value="0.00"step="0.01" readonly/>      
+                </div>
+                <div class="form-group col-md-1">
+                    <label class="control-label col-sm-1" >Total:</label>  
+                </div>
+                <div class="form-group col-md-2">
+                    <input type="number" class="form-control" id="netTotal" name="_netTotal" value="0.00" step="0.01" readonly/>       
+                </div>                
+            </div>
+            
+            <div class="form-row" >
+                <div class="form-group col-md-12">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;text-align:center;"
+                        onclick="validateSubmission();">Submit</button>
+                </div>     
+            </div>     
+            
+            <!--Simple footer-->
+            <div class="form-row" >
+                <div class="form-group col-md-12">            
+                    <br><a href='dashboard.html'>Back to Main Page</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/createinvoice.js"></script>
+    
+</body>
+
+</html> 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Invoicing Application for Hearing Center Canada">
+<meta name="author" content="Randy Volkart">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<style>
+ 
+</style>
+
+<title>Hearing Center Invoicing - Dashboard</title>
+
+</head>
+
+<body>
+    
+    <div class="container" style="background-color:cadetblue;">
+        <br>
+        <hr>
+        <h2 style="width: 100%;text-align:center;">Hearing Center Dashboard</h2>
+        <hr>
+        <br>
+
+        <form name='create' action='createinvoice.html'>
+            <div class="form-row" >
+                <div class="form-group col-md-12">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;text-align:center;">Create New Invoice</button>
+                </div>     
+            </div>   
+        </form  >          
+        <?php include "php/dashboard.php"; ?>
+
+        <span id="itemRow_0">
+            <div class="form-row" >
+                <div class="form-group col-md-3">
+                    <label class="control-label" for="name">Name:</label>
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="control-label" for="invoiceDate">Invoice Date:</label>
+                </div>                
+                <div class="form-group col-md-2">
+                    <label class="control-label" for="invoiceDueDate">Due Date:</label>
+                </div>         
+                <div class="form-group col-md-2">
+                    <label class="control-label" for="netTotal">Invoice Total:</label>
+                </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label" style="text-align:center; width:100%;">Invoice Options</label>
+                    </div>            
+            </div>  
+        </span>
+
+        <?php
+            $recordCount = count($dashboardData);
+            for ($i = 0; $i < $recordCount; $i++)
+        {
+            $invoiceID = "invoice_" . $i;   $idVal = $dashboardData[$i]['invoice_id'];
+            $nameID = "name_" . $i;         $nameVal = $dashboardData[$i]['name'];
+            $dateID = "date_" . $i;         $dateVal = $dashboardData[$i]['invoice_date'];
+            $dueID = "dueDate_" . $i;   $dueVal = $dashboardData[$i]['due_date'];
+            $totalID = "total_" . $i;       $totalVal = $dashboardData[$i]['net_total'];
+            
+        ?>
+        <form method="POST">
+            <div class="form-row" >
+                <input type="hidden" id='<?php echo "$invoiceID"; ?>' name="id" value='<?php echo"$idVal"; ?>' />
+                <div class="form-group col-md-3">
+                    <input type="text" class="form-control" id='<?php echo "$invoiceID"; ?>' name="_name" value='<?php echo"$nameVal"; ?>' />
+                </div>
+                <div class="form-group col-md-2">
+                    <input type="text" class="form-control" id='<?php echo "$dateID"; ?>' name="_invoiceDate" value='<?php echo"$dateVal"; ?>'' />                
+                </div>                
+                <div class="form-group col-md-2">
+                    <input type="text" class="form-control" id='<?php echo "$dueID"; ?>' name="_invoiceDueDate" value='<?php echo"$dueVal"; ?>' />
+                </div>         
+                <div class="form-group col-md-2">
+                    <input type="text" class="form-control" id='<?php echo "$totalID"; ?>' name="_netTotal" value='<?php echo"$totalVal"; ?>' />  
+                </div>
+                <div class="form-group col-md-1">
+                    <input type="submit" class="form-control" id="delete_submit" value="Delete" formaction="deleteinvoice.html"/>
+                </div>            
+                <div class="form-group col-md-1">
+                    <input type="submit" class="form-control" id="edit_submit" value="Edit" formaction="editinvoice.html"/>
+                </div>
+                <div class="form-group col-md-1">
+                    <input type="submit" class="form-control " id="item_submit" value="View" formaction="viewinvoice.html"/>
+                </div>                   
+            </div>  
+        </form>
+
+        <?php
+            } //ends the for loop
+        ?>
+    </div>
+</body>
+
+</html> 
